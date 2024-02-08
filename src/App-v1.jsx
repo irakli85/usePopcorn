@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import axios from 'axios';
+import { useState } from "react";
 
 const tempMovieData = [
   {
@@ -77,7 +76,8 @@ const Logo = () => {
   )
 }
 
-const Search = ({query, setQuery}) => {  
+const Search = () => {
+  const [query, setQuery] = useState("");
 
   return(
     <input
@@ -206,51 +206,19 @@ const Movie = ({movie}) => {
   )
 }
 
-const KEY = 'f5fcf426'
-
 export default function App() {  
-  const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState([]);
-  const [isLoading, setIsLoading]=useState(false)
-  const [error, setError] = useState('')
-  const [query, setQuery] = useState("avatar");
-  
-
-  useEffect( () => {
-    setIsLoading(true)
-    setError('')
-    const getMovies = async () => {
-     try{ const res  = await fetch(`http://www.omdbapi.com/?apikey=${KEY}&s=${query}`)
-      if (!res.ok) throw new Error('something went wrong')
-      const json = await res.json()
-      if (json.Response === 'False') throw new Error('Movie not found')
-      setMovies(json.Search)
-      } catch(err){
-        setError(err.message)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    if(query.length < 3){
-      setMovies([])
-      setError('')
-      return
-    }
-    getMovies()
-  
-  }, [query])    
+  const [movies, setMovies] = useState(tempMovieData);
+  const [watched, setWatched] = useState(tempWatchedData);
 
   return (
     <>
       <NavBar>        
-        <Search query={query} setQuery={setQuery}/>
+        <Search/>
         <NumResults movies={movies}/>
       </NavBar>
       <Main>
         <Box>
-          {isLoading  && <Loader/>}
-          {!isLoading && !error && <MovieList movies={movies}/>}
-          {error && <ErrorMessage message={error}/>}
+          <MovieList movies={movies}/>
         </Box>
         <Box>
           <WatchedSummary watched={watched}/>
@@ -259,14 +227,4 @@ export default function App() {
       </Main>
     </>
   );
-}
-
-const Loader = () => <p className="loader">Loading...</p>
-
-const ErrorMessage = ({message}) => {
-  return(
-    <p className="error">
-      <span>🚫</span>{message}
-    </p>
-  )
 }
